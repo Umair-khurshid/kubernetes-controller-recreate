@@ -18,3 +18,4 @@ Run the script with the appropriate arguments:
 ` ./controller-recreate.sh <type> <controller-name> `
 - **<type>**: The type of the Kubernetes controller (sts for StatefulSet, deploy for Deployment).
 - **<controller-name>**: The name of the Kubernetes controller.
+  
