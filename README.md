@@ -9,7 +9,7 @@ Handles errors and interrupts to ensure the controller is recreated if the scrip
 
 ### Requirements
 kubectl installed and configured to interact with your Kubernetes cluster.
-Bash shell.
+
 
 ### Usage
 Clone this repository and make the script executable:
