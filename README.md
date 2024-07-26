@@ -16,6 +16,6 @@ Clone this repository and make the script executable:
 Run the script with the appropriate arguments:
 
 ` ./controller-recreate.sh <type> <controller-name> `
-_type_: The type of the Kubernetes controller (sts for StatefulSet, deploy for Deployment).
-_controller-name_: The name of the Kubernetes controller.
+- _type_: The type of the Kubernetes controller (sts for StatefulSet, deploy for Deployment).
+- _controller-name_: The name of the Kubernetes controller.
   
