@@ -1,11 +1,20 @@
 #!/bin/bash
+
+################################################################
+################################################################
+# Name: Kubernetes Controller Recreate
+# Purpose: Safely delete and recreate Kubernetes controllers
+# Auther: Umair Khurshid
+################################################################
+################################################################
+
 set -eE
 
 # Check if arguments are provided
 if [[ $# != 2 ]]; then
-  echo "Usage: $0 <type> <controller>"
-  echo "Example: $0 sts mon-sts"
-  exit 1
+    echo "Usage: $0 <type> <controller>"
+    echo "Example: $0 sts mon-sts"
+    exit 1
 fi
 
 type=$1
@@ -13,16 +22,16 @@ name=$2
 
 # Check if the Kubernetes controller exists
 if ! kubectl get "$type" "$name" &>/dev/null; then
-  echo "Unable to retrieve info about the $type controller $name."
-  exit 1
+    echo "Unable to retrieve info about the $type controller $name."
+    exit 1
 fi
 
 # Function to clean up and rollback
 function clean {
-  echo "Rolling back controller objects..."
-  if [[ -n $STS ]]; then
-    echo "$STS" | kubectl apply -f -
-  fi
+    echo "Rolling back controller objects..."
+    if [[ -n $STS ]]; then
+        echo "$STS" | kubectl apply -f -
+    fi
 }
 
 # Store the current state of the controller
