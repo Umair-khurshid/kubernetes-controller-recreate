@@ -1,28 +1,25 @@
 #!/bin/bash
-
-################################################################
-################################################################
-# Name: Kubernetes Controller Recreate
-# Purpose: Safely delete and recreate Kubernetes controllers
-# Author: Umair Khurshid
-################################################################
-################################################################
-
 set -eE
 
-# Check if arguments are provided
-if [[ $# != 2 ]]; then
-    echo "Usage: $0 <type> <controller>"
-    echo "Example: $0 sts mon-sts"
+function usage {
+    echo "Usage: $0 <type> <controller> [namespace]"
+    echo "Example: $0 sts mon-sts default"
     exit 1
+}
+
+# Check if sufficient arguments are provided
+if [[ $# -lt 2 ]]; then
+    usage
 fi
 
 type=$1
 name=$2
+namespace=${3:-default}  # Default to 'default' namespace if not provided
 
-# Check if the Kubernetes controller exists
-if ! kubectl get "$type" "$name" &>/dev/null; then
-    echo "Unable to retrieve info about the $type controller $name."
+# Check if the Kubernetes controller exists in the specified namespace
+if ! kubectl get "$type" "$name" -n "$namespace" &>/dev/null; then
+    echo "Error: Unable to retrieve $type $name in namespace $namespace." \
+         "Ensure the resource exists and the namespace is correct."
     exit 1
 fi
 
@@ -35,19 +32,23 @@ function clean {
 }
 
 # Store the current state of the controller
-STS=$(kubectl get "$type" "$name" -ojson)
+STS=$(kubectl get "$type" "$name" -n "$namespace" -ojson)
 
-# Set up the trap for clean-up on error or exit
-trap clean ERR SIGINT SIGQUIT EXIT
+# Set up traps for errors and interrupts
+trap clean ERR SIGINT SIGQUIT
 
 # Delete the controller without deleting associated resources (pods)
-kubectl delete "$type" "$name" --cascade=false
+kubectl delete "$type" "$name" --cascade=false -n "$namespace"
 
 echo "Controller deleted. You can modify any pod created by the $type $name."
 
-# Optionally, interact with the user or automate the rollback step
-echo "Press any key when you are done to proceed and rollback controller $name."
-read -r
+# Interact with the user for rollback confirmation
+echo "Do you want to rollback the controller $name? [y/N]"
+read -r response
+if [[ "$response" =~ ^[Yy]$ ]]; then
+    clean
+else
+    echo "Rollback skipped."
+fi
 
 echo "Operation ended."
-
