@@ -4,7 +4,7 @@
 ################################################################
 # Name: Kubernetes Controller Recreate
 # Purpose: Safely delete and recreate Kubernetes controllers
-# Auther: Umair Khurshid
+# Author: Umair Khurshid
 ################################################################
 ################################################################
 
