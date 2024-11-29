@@ -18,8 +18,7 @@ namespace=${3:-default}  # Default to 'default' namespace if not provided
 
 # Check if the Kubernetes controller exists in the specified namespace
 if ! kubectl get "$type" "$name" -n "$namespace" &>/dev/null; then
-    echo "Error: Unable to retrieve $type $name in namespace $namespace." \
-         "Ensure the resource exists and the namespace is correct."
+    echo "Error: Unable to retrieve $type $name in namespace $namespace. Ensure the resource exists and the namespace is correct."
     exit 1
 fi
 
@@ -34,7 +33,7 @@ function clean {
 # Store the current state of the controller
 STS=$(kubectl get "$type" "$name" -n "$namespace" -ojson)
 
-# Set up traps for errors and interrupts
+# Set up traps for errors and interrupts (e.g., Ctrl+C or script errors)
 trap clean ERR SIGINT SIGQUIT
 
 # Delete the controller without deleting associated resources (pods)
@@ -42,13 +41,15 @@ kubectl delete "$type" "$name" --cascade=false -n "$namespace"
 
 echo "Controller deleted. You can modify any pod created by the $type $name."
 
-# Interact with the user for rollback confirmation
-echo "Do you want to rollback the controller $name? [y/N]"
+# Interactive prompt for rollback confirmation
+echo "Do you want to rollback the controller $name to its previous state? [y/N]"
 read -r response
 if [[ "$response" =~ ^[Yy]$ ]]; then
     clean
+    echo "Rollback completed successfully."
 else
-    echo "Rollback skipped."
+    echo "Rollback skipped. Proceed with modifications or manual actions."
 fi
 
 echo "Operation ended."
+
